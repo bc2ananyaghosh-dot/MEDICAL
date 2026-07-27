@@ -1,200 +1,190 @@
-# MedVault (Zero-Knowledge Medical Records DApp)
+# 🏥 MedVault: Zero-Knowledge Medical Records & Health Credentials DApp
 
 [![MedVault CI/CD Pipeline](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml/badge.svg)](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-brightgreen.svg?logo=vercel)](https://medical-pt2z.vercel.app)
+[![YouTube Demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red.svg?logo=youtube)](https://youtu.com/K-ftT5YBhDo)
 [![Author: Ananya Ghosh](https://img.shields.io/badge/Author-Ananya%20Ghosh-purple.svg)](https://github.com/bc2ananyaghosh-dot)
+[![Midnight Network](https://img.shields.io/badge/Network-Midnight%20ZK-blue.svg)](https://midnight.network/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A Midnight Network Zero-Knowledge privacy-preserving medical records and patient health credential application built with Compact smart contracts.
+---
 
-## Quick start
+## 🔗 Live Links & Demo
 
-Requirements: Node 22, Docker (with Compose v2), and the Compact compiler at the version pinned in `.compact-version` at the create-mn-app repo root (the version this project was scaffolded against).
+- 🌐 **Live Web Application (Vercel):** [https://medical-pt2z.vercel.app](https://medical-pt2z.vercel.app)
+- 📺 **YouTube Project Demo Video:** [https://youtu.com/K-ftT5YBhDo](https://youtu.com/K-ftT5YBhDo)
+- 🐙 **GitHub Repository:** [https://github.com/bc2ananyaghosh-dot/MEDICAL](https://github.com/bc2ananyaghosh-dot/MEDICAL)
 
-```bash
-npm install
-npm run setup
-npm run test:e2e
+---
+
+## 🌟 Executive Overview
+
+**MedVault** is a decentralized, Zero-Knowledge (ZK) privacy-preserving medical records and patient health credential verification platform built on the **Midnight Network**.
+
+In traditional healthcare systems, patients and doctors must present full clinical histories, diagnostic reports, or identity documents to verify single health attributes (e.g. vaccination status, specialist certification, or insurance claim eligibility). This leads to **Personal Health Information (PHI) over-disclosure**, HIPAA/GDPR privacy risks, and vulnerability to data breaches.
+
+**MedVault solves this by leveraging Midnight Compact smart contracts:**
+- Patients and healthcare providers store confidential medical data locally inside a **client-side private witness enclave**.
+- Mathematical **Zero-Knowledge Proofs** are generated locally or via a local proof server.
+- Verifiers and public ledgers only see a deterministic **proof validation boolean** and public hash — ensuring **0% leakage of raw medical diagnosis text, treatment records, or patient secrets**.
+
+---
+
+## ✨ Key Features
+
+- 🔒 **Zero-Knowledge PHI Protection:** Ensures 100% privacy of medical records, prescription details, and patient secrets.
+- 🎯 **Selective Disclosure:** Patients can selectively prove treatment completion, vaccination status, or insurance eligibility without sharing their entire medical file.
+- 📜 **Compact Smart Contracts (`contracts/medvault.compact`):** Midnight smart contracts for on-chain credential registration, proof verification, and revocation handling.
+- 🩺 **Multi-Credential Verification Engine:**
+  1. **Patient Medical Record Proof:** Verify health status while shielding diagnosis text.
+  2. **Healthcare Provider Endorsement:** Verify hospital & facility accreditation.
+  3. **Doctor Board Certification:** Verify physician license and consultation active status.
+  4. **Insurance Claim Eligibility:** Verify insurance policy coverage privately.
+- 👛 **Lace Wallet Integration:** Native Web3 authentication and wallet state management via `@midnight-ntwrk/wallet-sdk`.
+- ⚡ **Continuous Integration Pipeline:** Monitored via GitHub Actions with automated Vitest suites and failure diagnostic artifact uploads.
+
+---
+
+## 🏗️ System Architecture & Workflow
+
+```mermaid
+graph TD
+    A["Patient / User (Browser UI)"] -->|1. Inputs Confidential Health Record / Witness| B["Client Private Witness Enclave"]
+    B -->|2. Local Compact Circuit Verification| C["ZK Proof Server (Docker / Port 6300)"]
+    C -->|3. Generates Cryptographic ZK Proof Blob| D["Midnight Node & Public Ledger"]
+    D -->|4. Verifies Proof & Updates State| E["MedVault Public Ledger (Credential Count, Status)"]
+
+    subgraph Client Confidential Boundary (100% Shielded)
+        B
+    end
+
+    subgraph Zero-Knowledge Prover
+        C
+    end
+
+    subgraph Immutable Public Ledger
+        D
+        E
+    end
 ```
 
-`npm run setup` runs end-to-end with no prompts:
+---
 
-1. `docker compose up -d --wait` — starts a local Midnight devnet (node, indexer, proof-server) and blocks until all three pass their healthchecks.
-2. `npm run compile` — compiles `contracts/hello-world.compact` to `contracts/managed/hello-world/`.
-3. `npm run deploy` — derives the genesis-seed wallet (NIGHT pre-minted), registers UTXOs for DUST generation, deploys the contract, writes `.midnight-state.json`.
+## 🛠️ Technology Stack
 
-`npm run test:e2e` reconnects to the deployed contract and reads its ledger state. Exits 0 if the contract is live and indexable.
+| Layer | Technologies Used |
+| :--- | :--- |
+| **Frontend Framework** | React 18, TypeScript 5, Vite 6, Tailwind CSS 3 |
+| **Icons & UI** | Lucide React, Framer Motion |
+| **Zero-Knowledge Blockchain** | Midnight Network, Compact Language (`contracts/medvault.compact`), `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/wallet-sdk` |
+| **Backend & Proof Server** | Express, Node.js 22, Docker Compose Devnet |
+| **Testing & Quality Assurance** | Vitest, React Testing Library, TypeScript (`tsc --noEmit`) |
+| **CI/CD & Deployment** | GitHub Actions (`.github/workflows/ci.yml`), Vercel Cloud |
 
-## Local devnet
+---
 
-The project ships its own devnet via `docker-compose.yml`:
+## 📂 Project Structure
 
-| Service        | Port | Purpose                                         |
-| -------------- | ---- | ----------------------------------------------- |
-| `node`         | 9944 | Midnight node, `dev` chain preset               |
-| `indexer`      | 8088 | GraphQL indexer for chain state                 |
-| `proof-server` | 6300 | Generates ZK proofs for contract transactions   |
-
-State lives in container-managed volumes. Tear everything down with:
-
-```bash
-docker compose down -v
-```
-
-That removes all containers, networks, and volumes. The next `npm run setup` starts from a clean slate.
-
-## ⚠️ LOCAL DEVNET ONLY
-
-The deploy script uses a well-known genesis seed (`0000…0001`) so the
-pre-minted NIGHT in the `dev` chain preset is immediately available. **Do
-not use this seed against Preprod, mainnet, or any environment that
-handles real value** — anyone running this devnet has full access to
-funds at this seed.
-
-## Networks
-
-This DApp supports three networks:
-
-| Network | When to use | Default? |
-|---|---|---|
-| `undeployed` | Local devnet bundled in `docker-compose.yml`. Genesis seed is hardcoded; no funding needed. | yes |
-| `preview` | Public preview testnet. Faucet at `https://midnight-tmnight-preview.nethermind.dev`. |  |
-| `preprod` | Public preprod testnet. Faucet at `https://midnight-tmnight-preprod.nethermind.dev`. |  |
-
-The active network is **sticky**: whichever network you last interacted
-with stays active until you switch. Any command run with `--network <name>`
-also sets that network active for subsequent commands. The default on a
-fresh project is `undeployed` (local devnet).
-
-```sh
-npm run setup -- --network preview   # runs on preview AND makes it active
-npm run cli                          # still uses preview
-npm run check-balance                # still uses preview
-```
-
-You can also switch without running anything else:
-
-```sh
-npm run network preview         # active network is now preview
-npm run network                 # prints current active network
-npm run network undeployed      # switch back to local devnet
-```
-
-### How wallets work across networks
-
-- `undeployed` uses a hardcoded genesis seed. Local devnet pre-funds it.
-- `preview` and `preprod` generate a fresh seed on first use and store it
-  in `.midnight-state.json` (gitignored). The seed survives switching
-  networks — switch back later and your funded wallet returns.
-- **Back up your seed** if you fund a public-network wallet you care
-  about. Open `.midnight-state.json` and copy the relevant
-  `wallets.<network>.seed` value to a safe place.
-
-### Funding a public-network wallet
-
-On the first run with `--network preview` (or `preprod`):
-
-1. `setup` will print your wallet address and the faucet URL.
-2. Open the faucet URL, paste the address, request tNIGHT.
-3. `setup` polls the wallet balance every 10 s and continues automatically
-   once funds arrive.
-4. The default poll budget is 10 minutes. Override with
-   `MIDNIGHT_FAUCET_TIMEOUT_MS=1800000` (30 min) for unattended runs.
-
-If the faucet is slow or the script times out, your seed is preserved.
-Re-run `npm run setup -- --network preview` once the funds land.
-
-### Environment overrides
-
-These env vars override the active network's config (no per-network
-suffix — they apply to whichever network is active for the run):
-
-| Variable | Effect |
-|---|---|
-| `MIDNIGHT_WALLET_SEED` | Use this seed instead of generating/persisting one. Useful for CI with a pre-funded wallet. |
-| `MIDNIGHT_INDEXER_URL` | Override the indexer GraphQL URL. |
-| `MIDNIGHT_INDEXER_WS_URL` | Override the indexer WS URL. |
-| `MIDNIGHT_NODE_URL` | Override the node RPC URL. |
-| `MIDNIGHT_FAUCET_URL` | Override the faucet URL printed during setup. |
-| `MIDNIGHT_PROOF_SERVER_URL` | Override the proof server URL — set to a public proof server (e.g. `https://lace-proof-pub.preview.midnight.network`) to skip running one locally. |
-| `MIDNIGHT_FAUCET_TIMEOUT_MS` | Faucet poll budget in milliseconds (default 600000 = 10 min). |
-
-By default all networks use the **local** proof server. Public proof
-servers exist (see the env override above) but the local default keeps
-your witness data on your machine and avoids depending on a remote
-service for the deploy hot path.
-
-### Switching back to local devnet
-
-```sh
-npm run network undeployed     # or: npm run setup -- --network undeployed
-```
-
-Your preview/preprod wallet seeds and deploy addresses stay in
-`.midnight-state.json`. Switch back later, and they're still there.
-
-### Wallet sync cache
-
-After each `deploy`, `cli`, or `check-balance` run, the scripts serialize the
-wallet's synced state to `.midnight-wallet-state/<network>/` (gitignored).
-The next run on the same network restores from that snapshot and only catches
-up to the latest block instead of replaying from genesis — meaningful on
-`preview` / `preprod` where a from-seed sync takes minutes.
-
-If the cache is stale or corrupt (e.g. after an SDK upgrade with an
-incompatible state format) the wallet falls back to a fresh from-seed sync
-with a one-line warning. `npm run clean` removes the cache along with other
-generated state.
-
-## Available scripts
-
-| Script                  | Description                                                    |
-| ----------------------- | -------------------------------------------------------------- |
-| `npm run setup`         | One-shot: start devnet, compile, deploy.                       |
-| `npm run compile`       | Compile the Compact contract.                                  |
-| `npm run deploy`        | Deploy the compiled contract (requires devnet up + compiled).  |
-| `npm run cli`           | Interactive CLI to call circuits on the deployed contract.     |
-| `npm run check-balance` | Print the genesis-seed wallet's NIGHT and DUST balances.       |
-| `npm run test:e2e`      | Smoke + read-back check against the deployed contract.         |
-| `npm run clean`         | Remove `contracts/managed/`, `.midnight-state.json`, and `.midnight-wallet-state/`. |
-| `npm run proof-server:start` / `:stop` | Compose lifecycle for just the proof-server service. |
-
-## Project structure
-
-```
-medvault/
+```text
+d:\Medical Records\
+├── .github/
+│   └── workflows/
+│       └── ci.yml               # GitHub Actions CI/CD Pipeline
 ├── contracts/
-│   └── hello-world.compact     # Compact source
-├── scripts/
-│   └── e2e-check.ts            # smoke + read-back
+│   ├── medvault.compact         # MedVault Midnight Zero-Knowledge Smart Contract
+│   ├── proof_scholar.compact    # Legacy Compact contract definition
+│   └── managed/
+│       └── proof_scholar/       # Compiled TypeScript contract bindings
+│           └── index.ts
 ├── src/
-│   ├── network.ts              # network selection + state file management
-│   ├── wallet.ts               # wallet construction + sync-state cache
-│   ├── setup.ts                # orchestrator for `npm run setup`
-│   ├── deploy.ts               # deploy the contract
-│   ├── cli.ts                  # interact with deployed contract
-│   └── check-balance.ts        # NIGHT / DUST balance
-├── docker-compose.yml          # node + indexer + proof-server
-├── .midnight-state.json        # written by deploy (gitignored)
-├── .midnight-wallet-state/     # serialized sync state per network (gitignored)
-├── package.json
-└── tsconfig.json
+│   ├── backend/
+│   │   └── server.ts            # Express ZK Proof Server & API Endpoint
+│   ├── components/
+│   │   ├── Navbar.tsx           # MedVault Header Navigation
+│   │   ├── Footer.tsx           # MedVault Footer & Security Links
+│   │   ├── ProofGeneratorModal.tsx  # Patient ZK Proof Generator
+│   │   ├── ProofVerifierModal.tsx   # Health Credential Verifier Modal
+│   │   └── LedgerViewer.tsx     # Public Ledger Audit Explorer
+│   ├── pages/
+│   │   ├── LandingPage.tsx      # Hero Section & Interactive Workflow Illustration
+│   │   ├── Dashboard.tsx        # Patient & Healthcare Control Center
+│   │   ├── VerifyPage.tsx       # ZK Record Verification Engine
+│   │   ├── LedgerPage.tsx       # Public Health Ledger Explorer
+│   │   └── LoginPage.tsx        # MedVault Health Portal Sign-In
+│   ├── services/
+│   │   ├── laceWallet.ts        # Lace Wallet SDK Integration
+│   │   └── midnightService.ts   # ZK Proof Server HTTP Client Service
+│   └── witness.ts               # Private Witness Enclave Data Types & ZK Proof Engine
+├── tests/
+│   ├── config.test.ts           # Network Configuration Unit Tests
+│   ├── contract.test.ts         # MedVault Compact Contract Tests
+│   ├── privacy.test.ts          # ZK PHI Zero-Leakage Privacy Tests
+│   ├── ui.test.tsx              # React UI Component Tests
+│   └── wallet.test.ts           # Lace Wallet Adapter Tests
+├── docker-compose.yml           # Local Midnight Devnet (Node 9944, Indexer 8088, Proof-Server 6300)
+├── PROPOSAL.md                  # Comprehensive Project Proposal & System Architecture
+├── README.md                    # Project Documentation
+├── package.json                 # Dependencies & Build Scripts
+├── tsconfig.json                # TypeScript Configuration
+└── vite.config.ts               # Vite Configuration
 ```
 
-## Compact compiler version
+---
 
-`.compact-version` at the create-mn-app repo root pinned the compiler
-version this project was scaffolded against. To upgrade your local
-compiler to that version:
+## ⚡ Quick Start Guide
 
+### Prerequisites
+- **Node.js**: `v22.0.0` or higher
+- **Docker & Docker Compose**: `v2.0.0` or higher (for running local Midnight devnet)
+
+### 1. Installation
+Clone the repository and install dependencies:
 ```bash
-compact update <version>
-compact use <version>
+git clone https://github.com/bc2ananyaghosh-dot/MEDICAL.git
+cd MEDICAL
+npm install
 ```
-#   M e d i c a l - R e c o r d s  
- #   M e d i c a l - R e c o r d s  
- #   M e d i c a l - R e c o r d s  
- #   M e d i c a l - R e c o r d s  
- #   M e d i c a l - R e c o r d s  
- #   M E D I C A L  
- #   M E D I C A L  
- #   M E D I C A L  
- 
+
+### 2. Run Local Midnight Devnet
+Start the local Midnight Node, GraphQL Indexer, and ZK Proof Server:
+```bash
+npm run proof-server:start
+```
+*Tear down containers at any time with `npm run proof-server:stop`.*
+
+### 3. Run Automated Vitest Test Suite
+Execute the full unit and integration test suite:
+```bash
+npm run test
+```
+
+### 4. Type Check TypeScript Codebase
+```bash
+npm run typecheck
+```
+
+### 5. Launch Live Development Server
+Start the frontend application locally:
+```bash
+npm run dev
+```
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+
+---
+
+## 🌐 Network Environments
+
+This DApp supports multi-network switching:
+
+| Network | Description | How to Select |
+| :--- | :--- | :--- |
+| **`undeployed`** | Local devnet bundled in `docker-compose.yml`. Genesis seed pre-funded. | Default |
+| **`preview`** | Midnight Public Preview Testnet. | `npm run setup -- --network preview` |
+| **`preprod`** | Midnight Public Preprod Testnet. | `npm run setup -- --network preprod` |
+
+---
+
+## 📄 License & Author
+
+- **Author:** **Ananya Ghosh** ([@bc2ananyaghosh-dot](https://github.com/bc2ananyaghosh-dot))
+- **License:** [MIT License](LICENSE)
