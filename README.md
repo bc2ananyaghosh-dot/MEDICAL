@@ -182,6 +182,9 @@ This DApp supports multi-network switching:
 | **`preview`** | Midnight Public Preview Testnet. | `npm run setup -- --network preview` |
 | **`preprod`** | Midnight Public Preprod Testnet. | `npm run setup -- --network preprod` |
 
+<img width="1368" height="939" alt="image" src="https://github.com/user-attachments/assets/01e09819-4ffa-4553-b736-029f265e8b79" />
+<img width="1335" height="914" alt="image" src="https://github.com/user-attachments/assets/e2c0730b-a8f9-4cec-b1eb-fe1e6b296902" />
+
 ---
 
 ## 📄 License & Author
