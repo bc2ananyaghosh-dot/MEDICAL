@@ -15,6 +15,6 @@
     "allowSyntheticDefaultImports": true,
     "noEmit": true
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["src/**/*", "tests/**/*", "contracts/**/*"],
   "exclude": ["node_modules", "dist"]
 }
