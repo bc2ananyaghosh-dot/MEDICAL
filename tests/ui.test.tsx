@@ -16,7 +16,7 @@ describe('ProofScholar UI Component Tests', () => {
 
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeDefined();
-    expect(heading.textContent).toContain('Privacy-first Research Credential');
+    expect(heading.textContent).toContain('Privacy-first Medical Record');
   });
 
   it('should render Login Page form elements', () => {
