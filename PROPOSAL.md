@@ -1,6 +1,6 @@
-# 📜 MedVault / ProofScholar Proposal
+# 📜 MedVault Proposal: Zero-Knowledge Medical Records Platform
 
-[![ProofScholar CI/CD Pipeline](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml/badge.svg)](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml)
+[![MedVault CI/CD Pipeline](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml/badge.svg)](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen.svg)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Network](https://img.shields.io/badge/Network-Midnight-blue.svg)](https://midnight.network/)
@@ -10,9 +10,9 @@
 
 ## 1. 🌟 Executive Summary
 
-**MedVault (ProofScholar)** is a decentralized, Zero-Knowledge (ZK) privacy-preserving medical records and healthcare credential verification platform built on the **Midnight Network**. 
+**MedVault** is a decentralized, Zero-Knowledge (ZK) privacy-preserving medical records and healthcare credential verification platform built on the **Midnight Network**. 
 
-By leveraging **Compact smart contracts** and Midnight's dual-state architecture (Public Ledger + Private State), MedVault enables patients, healthcare providers, and research institutions to generate and verify cryptographically tamper-proof credentials without exposing sensitive Personal Health Information (PHI), medical formulas, or confidential patient identity data.
+By leveraging **Compact smart contracts** and Midnight's dual-state architecture (Public Ledger + Private State), MedVault enables patients, hospitals, doctors, and health insurance providers to generate and verify cryptographically tamper-proof health credentials without exposing sensitive Personal Health Information (PHI), medical diagnosis records, or confidential patient identities.
 
 ---
 

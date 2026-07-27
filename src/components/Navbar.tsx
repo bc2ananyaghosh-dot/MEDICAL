@@ -31,10 +31,10 @@ export const Navbar: React.FC = () => {
           </div>
           <div>
             <span className="font-bold text-xl tracking-tight text-slate-900 flex items-center gap-1">
-              Proof<span className="text-gradient">Scholar</span>
+              Med<span className="text-gradient">Vault</span>
             </span>
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100 block">
-              Midnight ZK Network
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 block">
+              Midnight ZK Health Network
             </span>
           </div>
         </Link>

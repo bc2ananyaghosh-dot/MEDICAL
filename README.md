@@ -1,9 +1,9 @@
-# medvault
+# MedVault (Zero-Knowledge Medical Records DApp)
 
-[![ProofScholar CI/CD Pipeline](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml/badge.svg)](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml)
+[![MedVault CI/CD Pipeline](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml/badge.svg)](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml)
 [![Author: Ananya Ghosh](https://img.shields.io/badge/Author-Ananya%20Ghosh-purple.svg)](https://github.com/bc2ananyaghosh-dot)
 
-A Midnight Network smart contract scaffolded with create-mn-app.
+A Midnight Network Zero-Knowledge privacy-preserving medical records and patient health credential application built with Compact smart contracts.
 
 ## Quick start
 

@@ -43,12 +43,12 @@ export const LandingPage: React.FC = () => {
 
           {/* Heading */}
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.1] max-w-4xl mx-auto">
-            Privacy-first Research Credential <span className="text-gradient">Verification</span>
+            Privacy-first Medical Record <span className="text-gradient">Verification</span>
           </h1>
 
           {/* Subheading */}
           <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto font-normal leading-relaxed">
-            Verify academic contributions without exposing confidential research records. Protect sensitive discoveries while proving authorship, institutional affiliation, and reviewer status.
+            Verify patient health records and medical credentials without exposing sensitive Personal Health Information (PHI). Protect medical diagnosis privacy while proving treatment history, doctor certifications, and insurance eligibility.
           </p>
 
           {/* Call to Actions */}

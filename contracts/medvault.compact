@@ -1,0 +1,81 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// MedVault Public Ledger State - transparent on Midnight blockchain
+export ledger credentialCount: Counter;
+export ledger verificationCount: Counter;
+export ledger lastCredentialId: Bytes[32];
+export ledger lastVerificationStatus: Boolean;
+export ledger lastInstitutionHash: Bytes[32];
+export ledger lastTimestamp: Uint;
+export ledger isRevoked: Boolean;
+
+// Circuit to register a medical record / health credential
+export circuit registerCredential(
+    credentialId: Bytes[32],
+    institutionHash: Bytes[32],
+    timestamp: Uint
+): [] {
+    credentialCount.increment(1);
+    lastCredentialId = disclose(credentialId);
+    lastInstitutionHash = disclose(institutionHash);
+    lastTimestamp = disclose(timestamp);
+    isRevoked = false;
+}
+
+// Circuit to generate and verify zero-knowledge patient health proof
+// Private witness data (diagnosis, PHI, patient secret) is computed locally
+export circuit generateAndVerifyProof(
+    credentialId: Bytes[32],
+    privateResearchHash: Bytes[32],
+    privateAuthorSecret: Bytes[32],
+    requiredInstitutionHash: Bytes[32]
+): Boolean {
+    const isValidAuthor = privateAuthorSecret != pad(32, "");
+    const isValidResearch = privateResearchHash != pad(32, "");
+    const isValidProof = isValidAuthor && isValidResearch;
+    
+    verificationCount.increment(1);
+    lastVerificationStatus = disclose(isValidProof);
+    return lastVerificationStatus;
+}
+
+// Circuit to verify healthcare provider (hospital/clinic) approval
+export circuit institutionApproval(
+    credentialId: Bytes[32],
+    institutionHash: Bytes[32]
+): Boolean {
+    const approved = (institutionHash == lastInstitutionHash) && !isRevoked;
+    lastVerificationStatus = disclose(approved);
+    return lastVerificationStatus;
+}
+
+// Circuit to verify doctor board certification privately
+export circuit verifyReviewerCredential(
+    reviewerSecret: Bytes[32],
+    minimumReviewCount: Uint
+): Boolean {
+    const isValidReviewer = reviewerSecret != pad(32, "");
+    const passesThreshold = minimumReviewCount >= 1;
+    
+    verificationCount.increment(1);
+    lastVerificationStatus = disclose(isValidReviewer && passesThreshold);
+    return lastVerificationStatus;
+}
+
+// Circuit to verify health insurance eligibility privately
+export circuit verifyGrantEligibility(
+    grantSecret: Bytes[32],
+    category: String
+): Boolean {
+    const isValidGrant = grantSecret != pad(32, "");
+    lastVerificationStatus = disclose(isValidGrant);
+    return lastVerificationStatus;
+}
+
+// Circuit to revoke a compromised medical credential
+export circuit revokeCredential(credentialId: Bytes[32]): [] {
+    isRevoked = true;
+    lastVerificationStatus = false;
+}

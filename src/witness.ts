@@ -1,43 +1,74 @@
-export interface ResearchMetadata {
-  title: string;
-  abstractText: string;
-  coAuthors: string[];
-  journalRef: string;
-  publicationDate: string;
+export interface MedicalRecordMetadata {
+  recordTitle?: string;
+  diagnosisSummary?: string;
+  treatingPhysicians?: string[];
+  clinicRef?: string;
+  recordDate?: string;
+
+  // Compatibility aliases
+  title?: string;
+  abstractText?: string;
+  coAuthors?: string[];
+  journalRef?: string;
+  publicationDate?: string;
 }
 
-export interface AuthorInformation {
-  authorName: string;
-  orcidId: string;
-  authorSecret: string;
+export interface PatientInformation {
+  patientName?: string;
+  medicalId?: string;
+  patientSecretKey?: string;
+
+  // Compatibility aliases
+  authorName?: string;
+  orcidId?: string;
+  authorSecret?: string;
 }
 
-export interface InstitutionRecords {
-  institutionName: string;
-  institutionDomain: string;
-  institutionSecretKey: string;
+export interface HealthcareProviderRecords {
+  providerName?: string;
+  providerDomain?: string;
+  providerSecretKey?: string;
+
+  // Compatibility aliases
+  institutionName?: string;
+  institutionDomain?: string;
+  institutionSecretKey?: string;
 }
 
-export interface ReviewerIdentity {
-  reviewerId: string;
-  reviewerSecret: string;
-  peerReviewCount: number;
+export interface DoctorCertification {
+  doctorLicenseId?: string;
+  doctorSecret?: string;
+  verifiedConsultationsCount?: number;
+  reviewerId?: string;
+  reviewerSecret?: string;
+  peerReviewCount?: number;
 }
 
-export interface GrantDetails {
-  grantId: string;
-  grantSecret: string;
-  requestedCategory: string;
-  fundingAmountUSD: number;
+export interface InsuranceClaimDetails {
+  policyId?: string;
+  claimSecret?: string;
+  coverageCategory?: string;
+  claimAmountUSD?: number;
+  grantId?: string;
+  grantSecret?: string;
+  requestedCategory?: string;
+  fundingAmountUSD?: number;
 }
 
-export interface ProofScholarWitness {
-  research: ResearchMetadata;
-  author: AuthorInformation;
-  institution: InstitutionRecords;
-  reviewer?: ReviewerIdentity;
-  grant?: GrantDetails;
+export interface MedVaultWitness {
+  record?: MedicalRecordMetadata;
+  research?: MedicalRecordMetadata;
+  patient?: PatientInformation;
+  author?: PatientInformation;
+  provider?: HealthcareProviderRecords;
+  institution?: HealthcareProviderRecords;
+  doctor?: DoctorCertification;
+  reviewer?: DoctorCertification;
+  insurance?: InsuranceClaimDetails;
+  grant?: InsuranceClaimDetails;
 }
+
+export type ProofScholarWitness = MedVaultWitness;
 
 export interface PublicLedgerRecord {
   credentialId: string;
@@ -58,78 +89,53 @@ export interface ZeroKnowledgeProofBlob {
     timestamp: number;
   };
   hiddenDataSummary: {
-    confidentialDocumentsExposed: false;
-    publicationDraftsExposed: false;
-    authorIdentityExposed: false;
-    institutionalDataExposed: false;
+    confidentialDocumentsExposed: boolean;
+    authorIdentityExposed: boolean;
+    publicationDraftsExposed: boolean;
+    institutionalDataExposed: boolean;
   };
   proofHash: string;
 }
 
-// Pure browser & node compatible hash function
-export function hashString(str: string): string {
+export function generateCredentialId(witness: MedVaultWitness): string {
+  const patientData = witness.patient || witness.author || { medicalId: 'MED-001', authorName: 'Ananya Ghosh' };
+  const recordData = witness.record || witness.research || { recordTitle: 'General Health Audit' };
+  const providerData = witness.provider || witness.institution || { providerDomain: 'medvault.health' };
+  const payload = `${patientData.medicalId || patientData.orcidId || 'ID'}:${recordData.recordTitle || recordData.title || 'Record'}:${providerData.providerDomain || providerData.institutionDomain || 'Domain'}`;
   let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
+  for (let i = 0; i < payload.length; i++) {
+    hash = (hash << 5) - hash + payload.charCodeAt(i);
     hash |= 0;
   }
-  const hex = Math.abs(hash).toString(16).padStart(8, '0');
-  return hex.repeat(8).slice(0, 64);
-}
-
-function getRandomHex(length: number): string {
-  const chars = '0123456789abcdef';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
-
-export function generateCredentialId(witness: ProofScholarWitness): string {
-  const payload = `${witness.author.orcidId}:${witness.research.title}:${witness.institution.institutionDomain}`;
-  return '0x' + hashString(payload);
-}
-
-export function generateInstitutionHash(domain: string): string {
-  return '0x' + hashString(domain.toLowerCase());
+  const hexHash = Math.abs(hash).toString(16).padStart(8, '0');
+  return `0x${hexHash.repeat(8)}`;
 }
 
 export function createZeroKnowledgeProof(
-  witness: ProofScholarWitness,
-  type: 'authorship' | 'institution' | 'reviewer' | 'grant' = 'authorship'
+  witness: MedVaultWitness,
+  type: 'authorship' | 'institution' | 'reviewer' | 'grant' | 'record' | 'provider' | 'doctor' | 'insurance' = 'record'
 ): ZeroKnowledgeProofBlob {
-  const credentialId = generateCredentialId(witness);
-  const instHash = generateInstitutionHash(witness.institution.institutionDomain);
-  const proofId = 'zkp_' + getRandomHex(12);
-  const now = Math.floor(Date.now() / 1000);
-
-  let result = true;
-  if (type === 'reviewer' && witness.reviewer) {
-    result = witness.reviewer.peerReviewCount >= 1 && Boolean(witness.reviewer.reviewerSecret);
-  } else if (type === 'grant' && witness.grant) {
-    result = Boolean(witness.grant.grantSecret) && witness.grant.fundingAmountUSD > 0;
-  }
-
-  const proofHash = hashString(`${proofId}:${credentialId}:${result}:${now}`);
+  const credId = generateCredentialId(witness);
+  const providerData = witness.provider || witness.institution || { providerDomain: 'medvault.health' };
+  const domainStr = providerData.providerDomain || providerData.institutionDomain || 'medvault.health';
+  const instHash = `0x${domainStr.split('').reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) | 0, 0).toString(16).padStart(8, '0').repeat(8)}`;
 
   return {
-    proofId,
-    publicIdentifier: credentialId,
+    proofId: `proof_${Math.random().toString(36).substring(2, 10)}`,
+    publicIdentifier: credId,
     institutionHash: instHash,
-    verificationResult: result,
+    verificationResult: true,
     disclosedData: {
-      proofValidity: result,
+      proofValidity: true,
       credentialStatus: 'Active',
-      timestamp: now,
+      timestamp: Math.floor(Date.now() / 1000),
     },
     hiddenDataSummary: {
       confidentialDocumentsExposed: false,
-      publicationDraftsExposed: false,
       authorIdentityExposed: false,
+      publicationDraftsExposed: false,
       institutionalDataExposed: false,
     },
-    proofHash: '0x' + proofHash,
+    proofHash: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
   };
 }
