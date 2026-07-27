@@ -1,0 +1,48 @@
+name: ProofScholar CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Compile Compact Contracts
+        run: npm run compile
+
+      - name: Run Vitest Suite (Contract, Privacy, UI, Wallet, Config)
+        run: npm run test
+
+      - name: Type Check
+        run: npm run typecheck
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Upload Error Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-logs
+          path: |
+            *.log
+            npm-debug.log*
+            test-results/
+          if-no-files-found: ignore
+

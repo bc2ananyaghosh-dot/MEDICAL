@@ -1,5 +1,8 @@
 # medvault
 
+[![ProofScholar CI/CD Pipeline](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml/badge.svg)](https://github.com/bc2ananyaghosh-dot/MEDICAL/actions/workflows/ci.yml)
+[![Author: Ananya Ghosh](https://img.shields.io/badge/Author-Ananya%20Ghosh-purple.svg)](https://github.com/bc2ananyaghosh-dot)
+
 A Midnight Network smart contract scaffolded with create-mn-app.
 
 ## Quick start

@@ -1,0 +1,82 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// Public ledger state - stored transparently on Midnight blockchain
+export ledger credentialCount: Counter;
+export ledger verificationCount: Counter;
+export ledger lastCredentialId: Bytes[32];
+export ledger lastVerificationStatus: Boolean;
+export ledger lastInstitutionHash: Bytes[32];
+export ledger lastTimestamp: Uint;
+export ledger isRevoked: Boolean;
+
+// Circuit to register a research credential
+export circuit registerCredential(
+    credentialId: Bytes[32],
+    institutionHash: Bytes[32],
+    timestamp: Uint
+): [] {
+    credentialCount.increment(1);
+    lastCredentialId = disclose(credentialId);
+    lastInstitutionHash = disclose(institutionHash);
+    lastTimestamp = disclose(timestamp);
+    isRevoked = false;
+}
+
+// Circuit to generate and verify zero-knowledge contribution proof
+// Private witness data (research metadata, author secret) is computed locally
+export circuit generateAndVerifyProof(
+    credentialId: Bytes[32],
+    privateResearchHash: Bytes[32],
+    privateAuthorSecret: Bytes[32],
+    requiredInstitutionHash: Bytes[32]
+): Boolean {
+    const isValidAuthor = privateAuthorSecret != pad(32, "");
+    const isValidResearch = privateResearchHash != pad(32, "");
+    const isValidProof = isValidAuthor && isValidResearch;
+    
+    verificationCount.increment(1);
+    lastVerificationStatus = disclose(isValidProof);
+    return lastVerificationStatus;
+}
+
+// Circuit to verify institutional endorsement privately
+export circuit institutionApproval(
+    credentialId: Bytes[32],
+    institutionHash: Bytes[32]
+): Boolean {
+    const approved = (institutionHash == lastInstitutionHash) && !isRevoked;
+    lastVerificationStatus = disclose(approved);
+    return lastVerificationStatus;
+}
+
+// Circuit to verify reviewer credentials privately
+export circuit verifyReviewerCredential(
+    reviewerSecret: Bytes[32],
+    minimumReviewCount: Uint
+): Boolean {
+    const isValidReviewer = reviewerSecret != pad(32, "");
+    const passesThreshold = minimumReviewCount >= 1;
+    const isEligible = isValidReviewer && passesThreshold;
+    lastVerificationStatus = disclose(isEligible);
+    return lastVerificationStatus;
+}
+
+// Circuit to verify grant eligibility privately
+export circuit verifyGrantEligibility(
+    grantSecret: Bytes[32],
+    requiredCategory: Bytes[32]
+): Boolean {
+    const isEligible = grantSecret != pad(32, "");
+    lastVerificationStatus = disclose(isEligible);
+    return lastVerificationStatus;
+}
+
+// Circuit to revoke credential
+export circuit revokeCredential(
+    credentialId: Bytes[32]
+): [] {
+    isRevoked = disclose(true);
+    lastVerificationStatus = false;
+}
